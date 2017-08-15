@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://code.alibabatech.com/schema/dubbo
+		http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+		
+	<!-- 加载Dubbo资源文件 -->
+	<bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+            	<value>classpath:dubbo.properties</value>		<!-- dubbo配置信息 -->
+            </list>
+        </property>
+        <property name="fileEncoding" value="UTF-8"></property>
+    </bean>	
+		
+	<!-- 消费方应用名，用于计算依赖关系，不是匹配条件，不要与提供方一样 -->
+	<dubbo:application name="${dubbo.application.name}" owner="${dubbo.application.owner}"/>
+
+	<!-- 使用zookeeper广播注册中心暴露发现服务地址 -->
+	<dubbo:registry protocol="zookeeper" address="${dubbo.registry.address}"/>
+
+	<!-- 扫描注解包路径,多个包用逗号分隔,不填pacakge表示扫描当前ApplicationContext中所有的类 -->
+	<dubbo:annotation package="com.dmm.controller"/>
+	
+	<!-- 启动的时候验证是否有生产者 -->
+	<dubbo:consumer check="false" timeout="${dubbo.registry.timeout}" retries="${dubbo.registry.retries}" />
+	
+	<!-- Dubbo事务接口,实现注入 -->
+	<import resource="classpath:transaction/dubbo-transaction.xml"/>
+	
+</beans>  
